@@ -25,6 +25,43 @@ productRouter.post('', (req, res, next) => {
   });
 });
 
+productRouter.put('/:id', (req, res, next) => {
+  console.log('Updating....' + req.params.id);
+  productDB.find({ id: { $eq: req.params.id } }).then((pro) => {
+    fetchedproductId = pro[0]._id;
+    console.log(fetchedproductId);
+
+    const product = new productDB({
+      id: req.params.id,
+      price: req.body.price,
+      img1: req.body.img1,
+      img2: req.body.img2,
+      productName: req.body.productName,
+      brand: req.body.brand,
+      discountPrice: req.body.discountPrice,
+      discountLable: req.body.discountLable,
+      rating: req.body.rating,
+      sale: req.body.sale,
+      _id: fetchedproductId,
+    });
+
+    console.log(product);
+    let output = productDB
+      .updateOne({ _id: fetchedproductId }, product)
+      .then(() => {
+        res.status(200).json({
+          message: 'Product updated successfully',
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+        res.status(400).json({
+          error: error,
+        });
+      });
+  });
+});
+
 /**
  * Returns list of products
  */
@@ -41,10 +78,10 @@ productRouter.get('', (req, res, next) => {
  * Returns a product by id.
  */
 productRouter.get('/:id', (req, res, next) => {
-  productDB.findById(req.params.id).then((productdb) => {
+  productDB.find({ id: { $eq: req.params.id } }).then((pro) => {
     res.status(200).json({
       message: 'Id fetched successfully!',
-      product: productid,
+      product: pro[0],
     });
   });
 });

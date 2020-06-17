@@ -10,7 +10,7 @@ const productSchema = mongoose.Schema({
   discountPrice: { type: Number, require: true },
   discountLable: { type: Number, require: true },
   rating: { type: Number, require: true },
-  sale: { type: Number, require: true },
+  sale: { type: String, require: true },
 });
 
 productSchema.method('transform', () => {
