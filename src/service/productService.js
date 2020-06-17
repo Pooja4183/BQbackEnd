@@ -25,6 +25,10 @@ productRouter.post('', (req, res, next) => {
   });
 });
 
+/**
+ * Updates a product based on the id supplied and the response.
+ * It fetches mongo's _id from id and then updates the record.
+ */
 productRouter.put('/:id', (req, res, next) => {
   console.log('Updating....' + req.params.id);
   productDB.find({ id: { $eq: req.params.id } }).then((pro) => {
@@ -84,6 +88,22 @@ productRouter.get('/:id', (req, res, next) => {
       product: pro[0],
     });
   });
+});
+
+productRouter.delete('/:id', (req, res, next) => {
+  productDB
+    .deleteOne({ id: req.params.id })
+    .then((result) => {
+      console.log(result);
+      res.status(200).json({
+        message: 'Product Deleted!',
+      });
+    })
+    .catch((error) => {
+      res.status(400).json({
+        error: error,
+      });
+    });
 });
 
 module.exports = productRouter;
