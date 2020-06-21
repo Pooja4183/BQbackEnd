@@ -1,29 +1,58 @@
-const productRouter = require('express').Router(),
+const productRouter = require('express').Router();
+const multer = require('multer'),
   productDB = require('../model/product');
+
+const MIME_TYPE_MAP = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
+};
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const isValid = MIME_TYPE_MAP[file.mimetype];
+    let error = new Error('invalid mime type');
+    if (isValid) {
+      error = null;
+    }
+    cb(error, 'images');
+  },
+
+  filename: (req, file, cb) => {
+    const name = file.originalname.toLocaleLowerCase().split(' ').join('-');
+    const ext = MIME_TYPE_MAP[file.mimetype];
+    cb(null, name + '-' + Date.now() + '.' + ext);
+  },
+});
 
 /**
  * Creates a new Product.
  */
-productRouter.post('', (req, res, next) => {
-  const product = new productDB({
-    id: req.body.id,
-    price: req.body.price,
-    img1: req.body.img1,
-    img2: req.body.img2,
-    productName: req.body.productName,
-    brand: req.body.brand,
-    discountPrice: req.body.discountPrice,
-    discountLable: req.body.discountLable,
-    rating: req.body.rating,
-    sale: req.body.sale,
-  });
+productRouter.post(
+  '',
+  multer({ storage: storage }).single('image'),
+  (req, res, next) => {
+    console.log(req.body);
+    const product = new productDB({
+      id: req.body.id,
+      price: req.body.price,
+      img1: req.body.img1,
+      img2: req.body.img2,
+      productName: req.body.productName,
+      brand: req.body.brand,
+      discountPrice: req.body.discountPrice,
+      discountLable: req.body.discountLable,
+      rating: req.body.rating,
+      sale: req.body.sale,
+    });
 
-  product.save();
-  console.log(product);
-  res.status(201).json({
-    message: 'Product data added successfully',
-  });
-});
+    product.save();
+    console.log(product);
+    res.status(201).json({
+      message: 'Product data added successfully',
+    });
+  }
+);
 
 /**
  * Updates a product based on the id supplied and the response.
